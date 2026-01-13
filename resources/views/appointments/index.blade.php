@@ -15,7 +15,7 @@
                 <div>
                     @if(Route::has('appointments.create'))
                     <a href="{{ route('appointments.create') }}"
-                    class="px-2 py-1 bg-white text-green-600 rounded text-sm">
+                    class="px-2 py-1 bg-white text-blue-600 rounded text-sm">
                         Create Appointment
                     </a>
                 @endif

@@ -21,6 +21,7 @@ class Appointment extends Model
     protected $casts = [
         'scheduled_at' => 'datetime',
     ];
+    
 
     // relationships
     public function patient()

@@ -3,66 +3,54 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
-use App\Models\Payment;
+use App\Models\Doctor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
-    /**
-     * Show payment page (dummy gateway)
-     */
     public function pay(Appointment $appointment)
-    {
-        $user = Auth::user();
-
-        // Patient only
-        abort_unless($user->hasRole('patient'), 403);
-
-        // Own appointment only
-        abort_unless($appointment->patient->user_id === $user->id, 403);
-
-        // Must be pending payment
-        abort_unless($appointment->status === 'pending_payment', 403);
-
-        // Fetch payment (must exist)
-        $payment = Payment::where('appointment_id', $appointment->id)->firstOrFail();
-
-        return view('payments.pay', compact('appointment', 'payment'));
+{
+    // Authorization check
+    abort_unless($appointment->patient->user_id === Auth::id(), 403);
+    
+    // Load doctor relationship
+    $appointment->load('doctor');
+    
+    // Check if payment is still needed
+    if (!in_array($appointment->status, ['pending_payment'])) {
+        return redirect()->route('patient.appointments')
+            ->with('info', 'This appointment is already confirmed.');
     }
+    
+    if ($appointment->payment_status === 'paid') {
+        return redirect()->route('patient.appointments')
+            ->with('info', 'This appointment is already paid.');
+    }
+    
+    return view('payments.pay', compact('appointment'));
+}
 
-    /**
-     * Dummy payment success
-     */
-    public function success(Request $request)
+
+    public function process(Request $request, Appointment $appointment)
     {
-        $request->validate([
-            'appointment_id' => 'required|exists:appointments,id',
-        ]);
-
-        $appointment = Appointment::with('doctor')->findOrFail($request->appointment_id);
-
-        // Security check
-        abort_unless(
-            $appointment->patient->user_id === auth()->id(),
-            403
-        );
-
-        $payment = Payment::where('appointment_id', $appointment->id)->firstOrFail();
-
-        // Update payment
-        $payment->update([
-            'status'         => 'paid',
-            'transaction_id' => 'DUMMY-' . strtoupper(uniqid()),
-        ]);
-
-        // Update appointment
+        // Authorization check
+        abort_unless($appointment->patient->user_id === Auth::id(), 403);
+        
+        // Sandbox payment simulation
         $appointment->update([
             'status' => 'booked',
+            'payment_status' => 'paid',
+            'payment_method' => 'sslcommerz',
+        ]);
+        
+        // Update payment record
+        $appointment->payment()->update([
+            'status' => 'paid',
+            'transaction_id' => 'TXN-SIM-' . time(),
         ]);
 
-        return redirect()
-            ->route('appointments.index')
-            ->with('success', 'Payment successful. Appointment booked.');
+        return redirect()->route('patient.appointments')
+            ->with('success', 'Payment successful! Appointment confirmed.');
     }
 }

@@ -38,12 +38,30 @@
                            value="{{ old('email') }}" required>
                 </div>
 
-                {{-- Password --}}
-                <div class="mb-4">
-                    <label class="block font-medium mb-1">Password</label>
-                    <input type="password" name="password"
-                           class="w-full border rounded px-3 py-2" required>
-                </div>
+                {{-- Replace password section with this --}}
+<div class="group">
+    <label class="block text-sm font-bold text-gray-700 mb-3 tracking-wide">Doctor PIN (6 digits)</label>
+    <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+            </svg>
+        </div>
+        <input type="password" 
+               name="password" 
+               maxlength="6" 
+               pattern="[0-9]{6}"
+               class="w-full pl-12 pr-4 py-4 bg-white/50 border-2 border-gray-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100/50 rounded-2xl shadow-sm transition-all duration-300 text-lg placeholder-gray-400 font-mono tracking-wider text-center" 
+               placeholder="123456" 
+               required>
+        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+            <span class="text-sm text-gray-500">6 digits</span>
+        </div>
+    </div>
+    <p class="mt-2 text-xs text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg inline-flex items-center">
+        Simple 6-digit PIN for doctor login (e.g., 123456)
+    </p>
+</div>
 
                 {{-- Specialty --}}
                 <div class="mb-4">
@@ -52,6 +70,21 @@
                            class="w-full border rounded px-3 py-2"
                            value="{{ old('specialty') }}" required>
                 </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Consultation Fee (৳)</label>
+                    <input type="number" 
+                        name="fee" 
+                        value="{{ old('fee', $doctor->fee ?? '') }}" 
+                        step="0.01" 
+                        min="0" 
+                        class="w-full border border-gray-300 focus:ring-2 focus:ring-teal-500 rounded-lg px-4 py-2" 
+                        placeholder="500" 
+                        required>
+                    @error('fee')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
 
                 {{-- Phone --}}
                 <div class="mb-4">

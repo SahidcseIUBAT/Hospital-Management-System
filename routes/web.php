@@ -26,6 +26,17 @@ Route::get('/', fn () => view('welcome'));
 | Authenticated (ALL USERS)
 |--------------------------------------------------------------------------
 */
+
+Route::middleware('auth')->group(function () {
+    Route::prefix('patient')->name('patient.')->group(function () {
+        Route::resource('patients', PatientController::class)->only(['create', 'store', 'show', 'edit', 'update', 'destroy']);
+        Route::get('doctors', [PatientController::class, 'doctors'])->name('doctors');
+        Route::get('doctors/{doctor}/book', [PatientController::class, 'book'])->name('book.doctor');
+        Route::post('doctors/{doctor}/book', [PatientController::class, 'bookStore'])->name('book.store');
+    });
+});
+
+
 Route::middleware(['auth'])->group(function () {
 
     /* ================= DASHBOARD ================= */
@@ -126,6 +137,21 @@ Route::middleware(['auth'])->group(function () {
             ->name('doctor.leaves.delete');
     });
 
+
+    Route::middleware(['auth', 'role:patient'])->prefix('patient')->name('patient.')->group(function () {
+    // Existing routes...
+    Route::get('doctors', [PatientController::class, 'doctors'])->name('doctors');
+    Route::get('doctors/{doctor}/book', [PatientController::class, 'book'])->name('book.doctor');
+    Route::post('doctors/{doctor}/book', [PatientController::class, 'bookStore'])->name('book.store');
+    
+    // ADD THIS:
+    Route::get('appointments', [PatientController::class, 'appointments'])->name('appointments');
+    
+    Route::get('/appointments/{appointment}/pay', [PaymentController::class, 'pay'])->name('payment.pay');
+    Route::post('/appointments/{appointment}/pay', [PaymentController::class, 'process'])->name('payment.process');
+});
+
+
     /* ================= PATIENT BOOKING FLOW ================= */
     Route::middleware(['role:patient'])->group(function () {
 
@@ -171,6 +197,12 @@ Route::middleware(['auth'])->group(function () {
             [PrescriptionController::class, 'show'])
             ->name('patient.prescriptions.show');
     });
+
+    Route::middleware(['auth', 'role:patient'])->group(function () {
+    Route::get('/appointments/{appointment}/pay', [PaymentController::class, 'pay'])->name('payment.pay');
+    Route::post('/appointments/{appointment}/pay', [PaymentController::class, 'process'])->name('payment.process');
+});
+
 
     /* ================= PRESCRIPTIONS (DOCTOR + PATIENT) ================= */
     Route::get('/prescriptions/{prescription}',

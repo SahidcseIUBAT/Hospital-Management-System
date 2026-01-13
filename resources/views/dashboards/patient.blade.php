@@ -140,9 +140,13 @@
                             @endforeach
                         </div>
 
-                        <a href="{{ route('patient.book') }}" class="block w-full py-3 bg-white text-indigo-900 font-bold text-center rounded-xl hover:bg-indigo-50 transition">
-                            View All Doctors
-                        </a>
+                        <div class="flex gap-4 pt-6">
+                <a href="{{ route('patient.doctors') }}" 
+                   class="block w-full py-3 bg-white text-indigo-900 font-bold text-center rounded-xl hover:bg-indigo-50 transition">
+                    ← View All Doctors
+                </a>
+                </div>
+                
                     </div>
                     <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-700 rounded-full blur-2xl opacity-50"></div>
                 </div>

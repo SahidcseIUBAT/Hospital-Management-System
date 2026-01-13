@@ -24,77 +24,69 @@ class DoctorController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|email|unique:users,email',
-            'password'  => 'required|min:6',
+        // Simple validation - 6 digit password OK
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|digits:6',  // ✅ 6 DIGIT PASSWORD ONLY
             'specialty' => 'required|string|max:255',
-            'phone'     => 'nullable|string|max:20',
-            'is_active' => 'nullable|boolean',
+            'phone' => 'nullable|string|max:20',
+            'fee' => 'required|numeric|min:0|max:100000',
+            'is_active' => 'boolean',
         ]);
 
-        DB::transaction(function () use ($request) {
+        // Create User with simple 6-digit password
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),  // ✅ Works with 123456
+        ]);
 
-            // 1️⃣ Create login account
-            $user = User::create([
-                'name'     => $request->name,
-                'email'    => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
+        // Assign doctor role
+        $user->assignRole('doctor');
 
-            // 2️⃣ Assign role
-            $user->assignRole('doctor');
-
-            // 3️⃣ Create doctor profile
-            Doctor::create([
-                'user_id'   => $user->id,
-                'name'      => $request->name,
-                'email'     => $request->email, 
-                'specialty' => $request->specialty,
-                'phone'     => $request->phone,
-                'is_active' => $request->boolean('is_active'),
-            ]);
-        });
+        // Create doctor record
+        Doctor::create([
+            'user_id' => $user->id,
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'specialty' => $validated['specialty'],
+            'fee' => (float) $validated['fee'],
+            'is_active' => $request->boolean('is_active', true),
+        ]);
 
         return redirect()->route('doctors.index')
-            ->with('success', 'Doctor added successfully.');
+            ->with('success', 'Doctor created! Login: ' . $validated['email'] . ' / ' . $validated['password']);
     }
+
+
 
     public function edit(Doctor $doctor)
     {
         return view('doctors.edit', compact('doctor'));
     }
 
-   public function update(Request $request, Doctor $doctor)
-{
-    $request->validate([
-        'name'      => 'required|string|max:255',
-        'email'     => 'required|email|unique:users,email,' . $doctor->user_id,
-        'specialty' => 'required|string|max:255',
-        'phone'     => 'nullable|string|max:20',
-        'is_active' => 'nullable|boolean',
-    ]);
-
-    \DB::transaction(function () use ($request, $doctor) {
-
-        $doctor->user->update([
-            'name'  => $request->name,
-            'email' => $request->email,
+    public function update(Request $request, Doctor $doctor)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email',
+            'phone' => 'required|string',
+            'specialty' => 'required|string|max:255',
+            'fee' => 'required|numeric|min:0|max:100000',  // ← CRITICAL
+            'is_active' => 'boolean',
         ]);
 
-        $doctor->update([
-            'name'      => $request->name,
-            'email'     => $request->email,
-            'specialty' => $request->specialty,
-            'phone'     => $request->phone,
-            'is_active' => $request->boolean('is_active'),
-        ]);
-    });
+        // Ensure fee is properly casted
+        $validated['fee'] = (float) $validated['fee'];
 
-    return redirect()
-        ->route('doctors.index')
-        ->with('success', 'Doctor updated successfully.');
-}
+        $doctor->update($validated);
+
+        return redirect()->route('doctors.index')
+            ->with('success', 'Doctor updated successfully!');
+    }
+
 
 
     public function destroy(Doctor $doctor)

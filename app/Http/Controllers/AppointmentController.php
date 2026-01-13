@@ -228,8 +228,6 @@ public function initiatePayment(Request $request, Doctor $doctor)
         ]);
     }
 }
-
-
     /*
     |--------------------------------------------------------------------------
     | SHOW
@@ -281,8 +279,6 @@ public function initiatePayment(Request $request, Doctor $doctor)
 
     return view('appointments.queue', compact('appointments'));
 }
-
-
     /*
     |--------------------------------------------------------------------------
     | CHECK-IN
@@ -300,32 +296,65 @@ public function initiatePayment(Request $request, Doctor $doctor)
 
     
     public function edit(Appointment $appointment)
-{
-    abort_unless(auth()->user()->hasRole('admin'), 403);
+    {
+        abort_unless(Auth::user()->hasRole('admin'), 403);
+        
+        $patients = Patient::with('user')->get();
+        $doctors = Doctor::where('is_active', true)->get();
+        
+        return view('appointments.edit', compact('appointment', 'patients', 'doctors'));
+    }
 
-    $patients = Patient::with('user')->get();
-    $doctors  = Doctor::where('is_active', true)->get();
+    /**
+     * Update the specified appointment in storage (ADD THIS METHOD)
+     */
+    public function update(Request $request, Appointment $appointment)
+    {
+        abort_unless(Auth::user()->hasRole('admin'), 403);
 
-    return view('appointments.edit', compact('appointment', 'patients', 'doctors'));
-}
+        // Validate input
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'doctor_id' => 'required|exists:doctors,id',
+            'scheduled_at' => 'required|date|after:now',
+            'status' => 'required|in:pending_payment,booked,checked_in,in_progress,completed,cancelled',
+            'reason' => 'nullable|string|max:500',
+        ]);
 
-public function update(Request $request, Appointment $appointment)
-{
-    abort_unless(auth()->user()->hasRole('admin'), 403);
+        // Check doctor availability (prevent double booking)
+        $conflict = Appointment::where('doctor_id', $validated['doctor_id'])
+            ->where('scheduled_at', $validated['scheduled_at'])
+            ->where('id', '!=', $appointment->id)
+            ->whereIn('status', ['pending_payment', 'booked', 'checked_in'])
+            ->exists();
 
-    $data = $request->validate([
-        'patient_id' => 'required|exists:patients,id',
-        'doctor_id'  => 'required|exists:doctors,id',
-        'date'       => 'required|date',
-        'status'     => 'required',
-        'reason'     => 'nullable|string',
-    ]);
+        if ($conflict) {
+            return back()->withErrors(['scheduled_at' => 'Doctor is already booked at this time.']);
+        }
 
-    $appointment->update($data);
+        // Update appointment
+        $appointment->update($validated);
 
-    return redirect()
-        ->route('appointments.index')
-        ->with('success', 'Appointment updated successfully.');
-}
+        return redirect()->route('appointments.index')
+            ->with('success', 'Appointment updated successfully!');
+    }
+        public function destroy(Appointment $appointment)
+    {
+        // Admin authorization (already checked by middleware)
+        abort_unless(Auth::user()->hasRole('admin'), 403);
+        
+        // Prevent deletion of completed/in-progress appointments
+        if (in_array($appointment->status, ['in_progress', 'completed'])) {
+            return back()->with('error', 'Cannot delete completed or active appointments.');
+        }
+        
+        // Delete related payment first (if exists)
+        $appointment->payment()->delete();
+        
+        // Delete appointment
+        $appointment->delete();
+        
+        return back()->with('success', 'Appointment deleted successfully.');
+    }
 
 }
