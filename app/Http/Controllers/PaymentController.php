@@ -31,7 +31,6 @@ class PaymentController extends Controller
     return view('payments.pay', compact('appointment'));
 }
 
-
     public function process(Request $request, Appointment $appointment)
     {
         // Authorization check

@@ -90,7 +90,7 @@
                 </div>
 
                 {{-- Status --}}
-                <div class="flex items-center">
+                <!-- <div class="flex items-center">
                     <label class="flex items-center">
                         <input type="checkbox" 
                                name="is_active" 
@@ -100,7 +100,20 @@
                         <span class="ml-3 text-sm font-semibold text-gray-700">Active Doctor</span>
                     </label>
                 </div>
-            </div>
+            </div> -->
+            <div class="flex items-center">
+    <label class="flex items-center">
+        <input type="checkbox"
+               name="is_active"
+               value="1"
+               class="w-5 h-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+               {{ $doctor->is_active ? 'checked' : '' }}>
+        <span class="ml-3 text-sm font-semibold text-gray-700">
+            Active Doctor
+        </span>
+    </label>
+</div>
+
 
             {{-- Buttons --}}
             <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200">

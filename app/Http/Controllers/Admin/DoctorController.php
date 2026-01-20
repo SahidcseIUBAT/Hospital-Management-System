@@ -69,14 +69,31 @@ class DoctorController extends Controller
 
     public function update(Request $request, Doctor $doctor)
     {
+        // $validated = $request->validate([
+        //     'name' => 'required|string|max:255',
+        //     'email' => 'nullable|email',
+        //     'phone' => 'required|string',
+        //     'specialty' => 'required|string|max:255',
+        //     'fee' => 'required|numeric|min:0|max:100000',  // ← CRITICAL
+        //     'is_active' => 'boolean',
+        // ]);
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email',
-            'phone' => 'required|string',
-            'specialty' => 'required|string|max:255',
-            'fee' => 'required|numeric|min:0|max:100000',  // ← CRITICAL
-            'is_active' => 'boolean',
-        ]);
+    'name'      => 'required|string|max:255',
+    'email'     => 'nullable|email',
+    'phone'     => 'required|string',
+    'specialty' => 'required|string|max:255',
+    'fee'       => 'required|numeric|min:0|max:100000',
+]);
+
+$doctor->update([
+    'name'      => $validated['name'],
+    'email'     => $validated['email'],
+    'phone'     => $validated['phone'],
+    'specialty' => $validated['specialty'],
+    'fee'       => (float) $validated['fee'],
+    'is_active' => $request->boolean('is_active'), // ✅ FORCE TRUE/FALSE
+]);
+
 
         // Ensure fee is properly casted
         $validated['fee'] = (float) $validated['fee'];

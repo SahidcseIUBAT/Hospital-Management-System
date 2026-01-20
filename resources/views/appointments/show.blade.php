@@ -19,22 +19,27 @@
         </div>
 
         {{-- Doctor Actions --}}
-        @role('doctor')
-            @if($appointment->doctor_id == auth()->user()->doctor?->id)
-                <div class="mb-6">
-                    @if(in_array($appointment->status, ['booked', 'checked_in']))
-                        <a href="{{ route('consultations.create', $appointment->id) }}"
-                           class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                            </svg>
-                            Start Consultation
-                        </a>
-                    @endif
-                </div>
-            @endif
-        @endrole
-    </div>
+        
+       @role('doctor')
+    @if(auth()->user()->doctor &&
+        auth()->user()->doctor->id === $appointment->doctor_id &&
+        in_array($appointment->status, ['booked', 'checked_in', 'in_progress']))
+        
+        <div class="mb-6">
+            <a href="{{ route('consultations.create', $appointment->id) }}"
+               class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Start Consultation
+            </a>
+        </div>
+
+    @endif
+@endrole
+
+
 
     <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
         {{-- Details Grid --}}

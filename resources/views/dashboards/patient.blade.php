@@ -25,7 +25,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
                 <div class="p-3 bg-rose-50 text-rose-500 rounded-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg></div>
                 <div><p class="text-xs text-slate-400 font-bold uppercase">Heart Rate</p><p class="font-bold text-slate-700">-- bpm</p></div>
@@ -43,7 +43,7 @@
                     Update Profile <span class="text-xl">→</span>
                  </a>
             </div>
-        </div>
+        </div> -->
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
@@ -67,7 +67,7 @@
                                     <div>
                                         <p class="text-xs font-bold text-teal-600 uppercase tracking-wide">Token: #{{ $a->token }}</p>
                                         <h4 class="text-lg font-bold text-slate-800">
-                                            Dr. {{ $a->doctor->name ?? ($a->doctor->user->name ?? 'Specialist') }}
+                                             {{ $a->doctor->name ?? ($a->doctor->user->name ?? 'Specialist') }}
                                         </h4>
                                         <p class="text-sm text-slate-500 flex items-center gap-1">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -104,7 +104,7 @@
                                     <div class="flex items-center gap-3">
                                         <div class="w-2 h-2 rounded-full bg-slate-300"></div>
                                         <div>
-                                            <p class="font-bold text-slate-700 text-sm">Dr. {{ $a->doctor->name ?? 'Doctor' }}</p>
+                                            <p class="font-bold text-slate-700 text-sm"> {{ $a->doctor->name ?? 'Doctor' }}</p>
                                             <p class="text-xs text-slate-400">{{ $a->scheduled_at?->format('d M Y, h:i A') }}</p>
                                         </div>
                                     </div>
@@ -124,7 +124,7 @@
                 <div class="bg-indigo-900 rounded-3xl p-6 text-white shadow-xl shadow-indigo-100 relative overflow-hidden">
                     <div class="relative z-10">
                         <h3 class="font-bold text-xl mb-1">Find a Doctor</h3>
-                        <p class="text-indigo-200 text-sm mb-6">Search by specialty or department.</p>
+                        <!-- <p class="text-indigo-200 text-sm mb-6">Available Departments</p>
                         
                         <div class="flex flex-wrap gap-2 mb-6">
                             @php 
@@ -132,13 +132,19 @@
                                 $specialties = ['Cardiology', 'Neurology', 'Dental', 'Pediatric', 'General']; 
                             @endphp
                             
+                            
                             @foreach($specialties as $spec)
-                                <a href="{{ route('patient.book', ['specialty' => $spec]) }}" 
-                                   class="px-3 py-1.5 bg-indigo-800/50 hover:bg-white hover:text-indigo-900 border border-indigo-700 rounded-lg text-xs font-semibold transition-all">
+                                
+                                <span
+                                    class="px-3 py-1.5 bg-indigo-800/50 
+                                        hover:bg-white hover:text-indigo-900 
+                                        border border-indigo-700 rounded-lg 
+                                        text-xs font-semibold transition-all 
+                                        cursor-not-allowed">
                                     {{ $spec }}
-                                </a>
+                                </span>
                             @endforeach
-                        </div>
+                        </div> -->
 
                         <div class="flex gap-4 pt-6">
                 <a href="{{ route('patient.doctors') }}" 
@@ -161,7 +167,7 @@
                             <li class="p-4 hover:bg-slate-50 transition flex justify-between items-center group">
                                 <div>
                                     <p class="text-sm font-bold text-slate-800">
-                                        Dr. {{ $p->consultation->doctor->name ?? 'Consultant' }}
+                                         {{ $p->consultation->doctor->name ?? 'Consultant' }}
                                     </p>
                                     <p class="text-xs text-slate-500">
                                         {{ $p->created_at->format('d M Y') }}

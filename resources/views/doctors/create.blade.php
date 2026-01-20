@@ -148,13 +148,29 @@
             </div>
 
             {{-- Active Status --}}
-            <div class="mb-8">
+            <!-- <div class="mb-8">
                 <label class="flex items-center">
                     <input type="checkbox" name="is_active" value="1" class="h-5 w-5 text-teal-600 focus:ring-teal-500 border-gray-300 rounded" checked>
                     <span class="ml-3 text-sm font-semibold text-gray-700">Active Doctor (Visible for booking)</span>
                 </label>
                 <p class="mt-1 text-xs text-gray-500 ml-8">Inactive doctors won't appear in patient booking lists</p>
-            </div>
+            </div> -->
+            <div class="mb-8">
+    <label class="flex items-center">
+        <input type="checkbox"
+               name="is_active"
+               value="1"
+               class="h-5 w-5 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+               checked>
+        <span class="ml-3 text-sm font-semibold text-gray-700">
+            Active Doctor (Visible for booking)
+        </span>
+    </label>
+    <p class="mt-1 text-xs text-gray-500 ml-8">
+        Inactive doctors won't appear in patient booking lists
+    </p>
+</div>
+
 
             {{-- Action Buttons --}}
             <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 bg-gray-50 px-2 sm:px-0">

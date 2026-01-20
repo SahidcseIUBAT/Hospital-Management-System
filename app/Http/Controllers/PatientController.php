@@ -9,6 +9,10 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use App\Models\DoctorSchedule;
+use App\Models\DoctorLeave;
+use Carbon\Carbon;
+
 
 class PatientController extends Controller
 {
@@ -122,23 +126,32 @@ class PatientController extends Controller
     /**
      * Show booking form for specific doctor.
      */
-    public function book(Doctor $doctor)
-    {
-        // Role check moved to routes
-        $user = Auth::user();
-        $patient = $user->patient;
 
-        if (!$patient) {
-            return redirect()->route('patient.create')
-                ->with('error', 'Please complete your patient profile first.');
-        }
+public function book(Doctor $doctor)
+{
+    $user = auth()->user();
+    $patient = $user->patient;
 
-        $doctor->load(['schedules' => function ($query) {
-            $query->where('is_active', true);
-        }]);
-
-        return view('patient.book', compact('doctor', 'patient'));
+    if (!$patient) {
+        return redirect()->route('patient.create')
+            ->with('error', 'Please complete your patient profile first.');
     }
+
+    $doctor->load(['schedules' => function ($q) {
+        $q->where('is_active', true);
+    }]);
+
+    $leaveDates = DoctorLeave::where('doctor_id', $doctor->id)
+        ->pluck('date')
+        ->toArray();
+
+    return view('patient.book', compact(
+        'doctor',
+        'patient',
+        'leaveDates'
+    ));
+}
+
 
     /**
      * Store appointment booking (initiate payment).
@@ -200,6 +213,47 @@ public function appointments()
         ->paginate(10);
         
     return view('patient.appointments', compact('appointments'));
+}
+
+
+public function availability(Request $request, Doctor $doctor)
+{
+    $date = $request->query('date');
+
+    if (!$date) {
+        return response()->json([
+            'message' => 'Date is required',
+            'slots' => []
+        ], 422);
+    }
+
+    // 🔒 Check doctor leave
+    if ($doctor->leaves()->whereDate('date', $date)->exists()) {
+        return response()->json([
+            'message' => 'Doctor is on leave on this date.',
+            'slots' => []
+        ]);
+    }
+
+    // 🔒 Check doctor schedule
+    $day = strtolower(Carbon::parse($date)->format('l'));
+
+    $schedules = $doctor->schedules()
+        ->where('day', $day)
+        ->where('is_active', true)
+        ->get();
+
+    if ($schedules->isEmpty()) {
+        return response()->json([
+            'message' => 'Doctor is not available on this date.',
+            'slots' => []
+        ]);
+    }
+
+    return response()->json([
+        'message' => null,
+        'slots' => $schedules
+    ]);
 }
 
 

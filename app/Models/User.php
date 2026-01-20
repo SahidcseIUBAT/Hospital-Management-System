@@ -17,6 +17,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(\App\Models\Patient::class);
     }
+    public function doctor()
+{
+    return $this->hasOne(Doctor::class, 'user_id');
+}
+
 
 
     protected $fillable = [

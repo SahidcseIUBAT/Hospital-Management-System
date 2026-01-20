@@ -22,6 +22,12 @@ class ConsultationController extends Controller
 
     abort_if($appointment->doctor_id !== $doctor->id, 403);
 
+
+    $appointment->update([
+    'status' => 'in_progress',
+]);
+
+
     // prevent duplicate consultation
     if ($appointment->consultation) {
         return redirect()
@@ -58,6 +64,10 @@ class ConsultationController extends Controller
         'days.*' => 'nullable|integer',
         'item_notes.*' => 'nullable|string',
     ]);
+
+
+
+
 
     DB::beginTransaction();
 

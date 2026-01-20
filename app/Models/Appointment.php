@@ -22,6 +22,16 @@ class Appointment extends Model
         'scheduled_at' => 'datetime',
     ];
     
+    public function canStartConsultation(): bool
+{
+    return in_array($this->status, [
+        'booked',
+        'checked_in',
+        'in_progress',
+    ]);
+}
+
+    
 
     // relationships
     public function patient()

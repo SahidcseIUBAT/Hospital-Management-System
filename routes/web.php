@@ -135,7 +135,19 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/my-leaves/{leave}',
             [DoctorLeaveController::class,'destroy'])
             ->name('doctor.leaves.delete');
+
+    //         Route::get('/doctor/{doctor}/availability', [PatientController::class, 'availability'])
+    // ->name('doctor.availability');
+
+    Route::get(
+    '/patient/doctor/{doctor}/availability',
+    [PatientController::class, 'availability']
+)->middleware(['auth', 'role:patient'])
+ ->name('patient.doctor.availability');
+
+
     });
+    
 
 
     Route::middleware(['auth', 'role:patient'])->prefix('patient')->name('patient.')->group(function () {

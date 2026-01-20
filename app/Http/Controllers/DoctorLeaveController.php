@@ -34,6 +34,10 @@ class DoctorLeaveController extends Controller
         return back()->with('success','Leave added.');
     }
 
+
+    
+    
+
     public function destroy(DoctorLeave $leave)
     {
         abort_unless($leave->doctor->user_id === auth()->id(), 403);
